@@ -31,15 +31,15 @@ XMFLOAT3 Object3d::up = { 0, 1, 0 };
 D3D12_VERTEX_BUFFER_VIEW Object3d::vbView{};
 D3D12_INDEX_BUFFER_VIEW Object3d::ibView{};
 Object3d::VertexPosNormalUv Object3d::vertices[vertexCount];
-unsigned short Object3d::indices[planeCount * 3];
+unsigned short Object3d::indices[indexCount];
 
-void Object3d::StaticInitialize(ID3D12Device * device, int window_width, int window_height)
-{
+
+void Object3d::StaticInitialize(ID3D12Device* device, int window_width, int window_height) {
 	// nullptrチェック
 	assert(device);
 
 	Object3d::device = device;
-		
+
 	// デスクリプタヒープの初期化
 	InitializeDescriptorHeap();
 
@@ -57,8 +57,7 @@ void Object3d::StaticInitialize(ID3D12Device * device, int window_width, int win
 
 }
 
-void Object3d::PreDraw(ID3D12GraphicsCommandList * cmdList)
-{
+void Object3d::PreDraw(ID3D12GraphicsCommandList* cmdList) {
 	// PreDrawとPostDrawがペアで呼ばれていなければエラー
 	assert(Object3d::cmdList == nullptr);
 
@@ -73,14 +72,12 @@ void Object3d::PreDraw(ID3D12GraphicsCommandList * cmdList)
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Object3d::PostDraw()
-{
+void Object3d::PostDraw() {
 	// コマンドリストを解除
 	Object3d::cmdList = nullptr;
 }
 
-Object3d * Object3d::Create()
-{
+Object3d* Object3d::Create() {
 	// 3Dオブジェクトのインスタンスを生成
 	Object3d* object3d = new Object3d();
 	if (object3d == nullptr) {
@@ -97,22 +94,19 @@ Object3d * Object3d::Create()
 	return object3d;
 }
 
-void Object3d::SetEye(XMFLOAT3 eye)
-{
+void Object3d::SetEye(XMFLOAT3 eye) {
 	Object3d::eye = eye;
 
 	UpdateViewMatrix();
 }
 
-void Object3d::SetTarget(XMFLOAT3 target)
-{
+void Object3d::SetTarget(XMFLOAT3 target) {
 	Object3d::target = target;
 
 	UpdateViewMatrix();
 }
 
-void Object3d::CameraMoveVector(XMFLOAT3 move)
-{
+void Object3d::CameraMoveVector(XMFLOAT3 move) {
 	XMFLOAT3 eye_moved = GetEye();
 	XMFLOAT3 target_moved = GetTarget();
 
@@ -128,10 +122,20 @@ void Object3d::CameraMoveVector(XMFLOAT3 move)
 	SetTarget(target_moved);
 }
 
-void Object3d::InitializeDescriptorHeap()
-{
-	HRESULT result = S_FALSE;
+void Object3d::CameraMoveEyeVector(XMFLOAT3 move) {
+	XMFLOAT3 eye_moved = GetEye();
 	
+	eye_moved.x += move.x;
+	eye_moved.y += move.y;
+	eye_moved.z += move.z;
+
+	SetEye(eye_moved);	
+}
+
+
+void Object3d::InitializeDescriptorHeap() {
+	HRESULT result = S_FALSE;
+
 	// デスクリプタヒープを生成	
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -147,8 +151,7 @@ void Object3d::InitializeDescriptorHeap()
 
 }
 
-void Object3d::InitializeCamera(int window_width, int window_height)
-{
+void Object3d::InitializeCamera(int window_width, int window_height) {
 	// ビュー行列の生成
 	matView = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
@@ -168,8 +171,7 @@ void Object3d::InitializeCamera(int window_width, int window_height)
 	);
 }
 
-void Object3d::InitializeGraphicsPipeline()
-{
+void Object3d::InitializeGraphicsPipeline() {
 	HRESULT result = S_FALSE;
 	ComPtr<ID3DBlob> vsBlob; // 頂点シェーダオブジェクト
 	ComPtr<ID3DBlob> psBlob;	// ピクセルシェーダオブジェクト
@@ -190,8 +192,8 @@ void Object3d::InitializeGraphicsPipeline()
 		errstr.resize(errorBlob->GetBufferSize());
 
 		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
+					errorBlob->GetBufferSize(),
+					errstr.begin());
 		errstr += "\n";
 		// エラー内容を出力ウィンドウに表示
 		OutputDebugStringA(errstr.c_str());
@@ -213,8 +215,8 @@ void Object3d::InitializeGraphicsPipeline()
 		errstr.resize(errorBlob->GetBufferSize());
 
 		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
+					errorBlob->GetBufferSize(),
+					errstr.begin());
 		errstr += "\n";
 		// エラー内容を出力ウィンドウに表示
 		OutputDebugStringA(errstr.c_str());
@@ -314,15 +316,14 @@ void Object3d::InitializeGraphicsPipeline()
 
 }
 
-void Object3d::LoadTexture()
-{
+void Object3d::LoadTexture() {
 	HRESULT result = S_FALSE;
 
 	TexMetadata metadata{};
 	ScratchImage scratchImg{};
 
 	// WICテクスチャのロード
-	result = LoadFromWICFile( L"Resources/tex1.png", WIC_FLAGS_NONE, &metadata, scratchImg);
+	result = LoadFromWICFile(L"Resources/tex1.png", WIC_FLAGS_NONE, &metadata, scratchImg);
 	assert(SUCCEEDED(result));
 
 	ScratchImage mipChain{};
@@ -380,17 +381,17 @@ void Object3d::LoadTexture()
 	srvDesc.Texture2D.MipLevels = 1;
 
 	device->CreateShaderResourceView(texbuff.Get(), //ビューと関連付けるバッファ
-		&srvDesc, //テクスチャ設定情報
-		cpuDescHandleSRV
+									 &srvDesc, //テクスチャ設定情報
+									 cpuDescHandleSRV
 	);
 
 }
 
-void Object3d::CreateModel()
-{
+void Object3d::CreateModel() {
 	HRESULT result = S_FALSE;
 
 	std::vector<VertexPosNormalUv> realVertices;
+	/*
 	// 頂点座標の計算（重複あり）
 	{
 		realVertices.resize((division + 1) * 2);
@@ -509,6 +510,27 @@ void Object3d::CreateModel()
 		XMStoreFloat3(&vertices[index2].normal, normal);
 	}
 
+	*/
+	VertexPosNormalUv verticesSquare[] = {
+
+		{{-5.0f,-5.0f,0.0f},{0,0,1},{0,1}},//左下
+		{{-5.0f,+5.0f,0.0f},{0,0,1},{0,0}},//左上
+		{{+5.0f,-5.0f,0.0f},{0,0,1},{1,1}},//右下
+		{{+5.0f,+5.0f,0.0f},{0,0,1},{1,0}},//右下
+	};
+
+	std::copy(std::begin(verticesSquare),
+			  std::end(verticesSquare),
+			  vertices);
+	//四角形のモデルデータ
+	unsigned short indicesSquare[] = {
+		0,1,2,//三角形1
+		2,1,3,//三角形2
+	};
+	std::copy(std::begin(indicesSquare),
+			  std::end(indicesSquare),
+			  indices);
+
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices));
 
 	// ヒーププロパティ
@@ -550,8 +572,7 @@ void Object3d::CreateModel()
 	if (SUCCEEDED(result)) {
 
 		// 全インデックスに対して
-		for (int i = 0; i < _countof(indices); i++)
-		{
+		for (int i = 0; i < _countof(indices); i++) {
 			indexMap[i] = indices[i];	// インデックスをコピー
 		}
 
@@ -564,14 +585,12 @@ void Object3d::CreateModel()
 	ibView.SizeInBytes = sizeof(indices);
 }
 
-void Object3d::UpdateViewMatrix()
-{
+void Object3d::UpdateViewMatrix() {
 	// ビュー行列の更新
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
-bool Object3d::Initialize()
-{
+bool Object3d::Initialize() {
 	// nullptrチェック
 	assert(device);
 
@@ -593,8 +612,7 @@ bool Object3d::Initialize()
 	return true;
 }
 
-void Object3d::Update()
-{
+void Object3d::Update() {
 	HRESULT result;
 	XMMATRIX matScale, matRot, matTrans;
 
@@ -626,12 +644,11 @@ void Object3d::Update()
 	constBuff->Unmap(0, nullptr);
 }
 
-void Object3d::Draw()
-{
+void Object3d::Draw() {
 	// nullptrチェック
 	assert(device);
 	assert(Object3d::cmdList);
-		
+
 	// 頂点バッファの設定
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
 	// インデックスバッファの設定

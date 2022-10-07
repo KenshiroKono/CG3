@@ -16,21 +16,27 @@
     <Filter Include="シェーダー ファイル">
       <UniqueIdentifier>{7d0e7b81-4308-414a-ae59-352b3afeccd0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース&amp;ヘッダー">
+      <UniqueIdentifier>{eaa17ed8-cd3e-4e9e-a1ee-10a2f8733fac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース&amp;ヘッダー\Input">
+      <UniqueIdentifier>{1bbbba17-1263-47b6-aa39-3db23131c573}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース&amp;ヘッダー\DebugText">
+      <UniqueIdentifier>{269aae06-996a-4f30-afdc-40de65715bae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース&amp;ヘッダー\Object3d">
+      <UniqueIdentifier>{3aebc879-1dc9-42c6-8407-2655c675e36f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース&amp;ヘッダー\GameScene">
+      <UniqueIdentifier>{38030a05-292a-43a5-ac45-37d8ff14e3a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース&amp;ヘッダー\Sprite">
+      <UniqueIdentifier>{1f84c911-ddfd-4946-a113-41673f45a56c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Sprite.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugText.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Object3d.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="WinApp.cpp">
@@ -39,8 +45,20 @@
     <ClCompile Include="DirectXCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Object3d.cpp">
+      <Filter>ソース&amp;ヘッダー\Object3d</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugText.cpp">
+      <Filter>ソース&amp;ヘッダー\DebugText</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>ソース&amp;ヘッダー\Input</Filter>
+    </ClCompile>
     <ClCompile Include="GameScene.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース&amp;ヘッダー\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>ソース&amp;ヘッダー\Sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,26 +84,26 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sprite.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugText.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Object3d.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="WinApp.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Object3d.h">
+      <Filter>ソース&amp;ヘッダー\Object3d</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugText.h">
+      <Filter>ソース&amp;ヘッダー\DebugText</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>ソース&amp;ヘッダー\Input</Filter>
+    </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ソース&amp;ヘッダー\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>ソース&amp;ヘッダー\Sprite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
