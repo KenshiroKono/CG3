@@ -124,12 +124,12 @@ void Object3d::CameraMoveVector(XMFLOAT3 move) {
 
 void Object3d::CameraMoveEyeVector(XMFLOAT3 move) {
 	XMFLOAT3 eye_moved = GetEye();
-	
+
 	eye_moved.x += move.x;
 	eye_moved.y += move.y;
 	eye_moved.z += move.z;
 
-	SetEye(eye_moved);	
+	SetEye(eye_moved);
 }
 
 
@@ -152,23 +152,26 @@ void Object3d::InitializeDescriptorHeap() {
 }
 
 void Object3d::InitializeCamera(int window_width, int window_height) {
+	UpdateViewMatrix();
 	// ビュー行列の生成
-	matView = XMMatrixLookAtLH(
+	/*matView = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
 		XMLoadFloat3(&target),
 		XMLoadFloat3(&up));
+		*/
 
-	// 平行投影による射影行列の生成
-	//constMap->mat = XMMatrixOrthographicOffCenterLH(
-	//	0, window_width,
-	//	window_height, 0,
-	//	0, 1);
-	// 透視投影による射影行列の生成
-	matProjection = XMMatrixPerspectiveFovLH(
-		XMConvertToRadians(60.0f),
-		(float)window_width / window_height,
-		0.1f, 1000.0f
-	);
+
+		// 平行投影による射影行列の生成
+		//constMap->mat = XMMatrixOrthographicOffCenterLH(
+		//	0, window_width,
+		//	window_height, 0,
+		//	0, 1);
+		// 透視投影による射影行列の生成
+		matProjection = XMMatrixPerspectiveFovLH(
+			XMConvertToRadians(60.0f),
+			(float)window_width / window_height,
+			0.1f, 1000.0f
+		);
 }
 
 void Object3d::InitializeGraphicsPipeline() {
@@ -587,7 +590,59 @@ void Object3d::CreateModel() {
 
 void Object3d::UpdateViewMatrix() {
 	// ビュー行列の更新
-	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+	//matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+
+
+	//視点座標
+	XMVECTOR eyePosition = XMLoadFloat3(&eye);
+	//注視点座標
+	XMVECTOR targetPosition = XMLoadFloat3(&target);
+	//上方向(仮)
+	XMVECTOR upVector = XMLoadFloat3(&up);
+	//カメラZ軸(視線方向)
+	XMVECTOR cameraAxisZ = XMVectorSubtract(targetPosition, eyePosition);
+	//0ベクトルを除外
+	assert(!XMVector3Equal(cameraAxisZ, XMVectorZero()));
+	assert(!XMVector3IsInfinite(cameraAxisZ));
+	assert(!XMVector3Equal(upVector, XMVectorZero()));
+	assert(!XMVector3IsInfinite(upVector));
+	//ベクトルを正規化
+	cameraAxisZ = XMVector3Normalize(cameraAxisZ);
+
+	//カメラX軸
+	XMVECTOR cameraAxisX = XMVector3Cross(upVector, cameraAxisZ);
+	//ベクトルを正規化
+	cameraAxisX = XMVector3Normalize(cameraAxisX);
+
+	//カメラY軸
+	XMVECTOR cameraAxisY = XMVector3Cross(cameraAxisZ, cameraAxisX);
+	//ベクトルを正規化
+	cameraAxisY = XMVector3Normalize(cameraAxisY);
+
+	//カメラ回転行列
+	XMMATRIX matCameraRot;
+	//カメラ座標系からワールド座標系への変換
+	matCameraRot.r[0] = cameraAxisX;
+	matCameraRot.r[1] = cameraAxisY;
+	matCameraRot.r[2] = cameraAxisZ;
+	matCameraRot.r[3] = XMVectorSet(0, 0, 0, 1);
+
+	//転置より逆行列を計算
+	matView = XMMatrixTranspose(matCameraRot);
+
+	//視点座標に-1掛けた座標
+	XMVECTOR reverseEyePosition = XMVectorNegate(eyePosition);
+	//カメラの位置からワールド座標へのベクトル
+	XMVECTOR tX = XMVector3Dot(cameraAxisX, reverseEyePosition);
+	XMVECTOR tY = XMVector3Dot(cameraAxisY, reverseEyePosition);
+	XMVECTOR tZ = XMVector3Dot(cameraAxisZ, reverseEyePosition);
+	//一つのべクトルにまとめる
+	XMVECTOR translation = XMVectorSet(tX.m128_f32[0], tY.m128_f32[1],
+									   tZ.m128_f32[2], 1.0f);
+	//ビュー行列に平行移動成分を設定
+	matView.r[3] = translation;
+
+
 }
 
 bool Object3d::Initialize() {
