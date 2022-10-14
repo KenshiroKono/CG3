@@ -33,6 +33,9 @@ public: // サブクラス
 		XMMATRIX mat;	// ３Ｄ変換行列
 	};
 
+	int isBillboard;
+	int isYBillboard;
+
 private: // 定数
 	static const int division = 50;					// 分割数
 	static const float radius;				// 底面の半径
@@ -44,6 +47,11 @@ private: // 定数
 private: // 追加メンバ変数
 	static const int vertexCount = 4;
 	static const int indexCount = 3 * 2;
+	
+	//ビルボード行列
+	static XMMATRIX matBillboard;
+	//Y軸回りビルボード行列
+	static XMMATRIX matBillboardY;
 
 	////頂点データ配列
 	//static VertexPosNormalUv vertices[vertexCount];

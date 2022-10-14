@@ -1,6 +1,7 @@
 ﻿#include "Object3d.h"
 #include <d3dcompiler.h>
 #include <DirectXTex.h>
+#include "Input.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -31,7 +32,10 @@ XMFLOAT3 Object3d::up = { 0, 1, 0 };
 D3D12_VERTEX_BUFFER_VIEW Object3d::vbView{};
 D3D12_INDEX_BUFFER_VIEW Object3d::ibView{};
 Object3d::VertexPosNormalUv Object3d::vertices[vertexCount];
+
 unsigned short Object3d::indices[indexCount];
+XMMATRIX Object3d::matBillboard = XMMatrixIdentity();
+XMMATRIX Object3d::matBillboardY = XMMatrixIdentity();
 
 
 void Object3d::StaticInitialize(ID3D12Device* device, int window_width, int window_height) {
@@ -90,7 +94,6 @@ Object3d* Object3d::Create() {
 		assert(0);
 		return nullptr;
 	}
-
 	return object3d;
 }
 
@@ -167,11 +170,11 @@ void Object3d::InitializeCamera(int window_width, int window_height) {
 		//	window_height, 0,
 		//	0, 1);
 		// 透視投影による射影行列の生成
-		matProjection = XMMatrixPerspectiveFovLH(
-			XMConvertToRadians(60.0f),
-			(float)window_width / window_height,
-			0.1f, 1000.0f
-		);
+	matProjection = XMMatrixPerspectiveFovLH(
+		XMConvertToRadians(60.0f),
+		(float)window_width / window_height,
+		0.1f, 1000.0f
+	);
 }
 
 void Object3d::InitializeGraphicsPipeline() {
@@ -273,6 +276,7 @@ void Object3d::InitializeGraphicsPipeline() {
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
+	gpipeline.BlendState.AlphaToCoverageEnable = true;
 
 	// 深度バッファのフォーマット
 	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
@@ -326,7 +330,7 @@ void Object3d::LoadTexture() {
 	ScratchImage scratchImg{};
 
 	// WICテクスチャのロード
-	result = LoadFromWICFile(L"Resources/tex1.png", WIC_FLAGS_NONE, &metadata, scratchImg);
+	result = LoadFromWICFile(L"Resources/kusa.png", WIC_FLAGS_NONE, &metadata, scratchImg);
 	assert(SUCCEEDED(result));
 
 	ScratchImage mipChain{};
@@ -516,10 +520,10 @@ void Object3d::CreateModel() {
 	*/
 	VertexPosNormalUv verticesSquare[] = {
 
-		{{-5.0f,-5.0f,0.0f},{0,0,1},{0,1}},//左下
-		{{-5.0f,+5.0f,0.0f},{0,0,1},{0,0}},//左上
-		{{+5.0f,-5.0f,0.0f},{0,0,1},{1,1}},//右下
-		{{+5.0f,+5.0f,0.0f},{0,0,1},{1,0}},//右下
+		{{-5.0f,0.0f,0.0f},{0,0,1},{0,1}},//左下
+		{{-5.0f,10.0f,0.0f},{0,0,1},{0,0}},//左上
+		{{+5.0f,0.0f,0.0f},{0,0,1},{1,1}},//右下
+		{{+5.0f,10.0f,0.0f},{0,0,1},{1,0}},//右下
 	};
 
 	std::copy(std::begin(verticesSquare),
@@ -643,12 +647,37 @@ void Object3d::UpdateViewMatrix() {
 	matView.r[3] = translation;
 
 
+#pragma region 全方向ビルボードの計算
+	matBillboard.r[0] = cameraAxisX;
+	matBillboard.r[1] = cameraAxisY;
+	matBillboard.r[2] = cameraAxisZ;
+	matBillboard.r[3] = XMVectorSet(0, 0, 0, 1);
+#pragma endregion 
+
+
+#pragma region Y軸回りビルボードの計算
+	XMVECTOR ybillCameraAxisX, ybillCameraAxisY, ybillCameraAxisZ;
+	//X軸は共通
+	ybillCameraAxisX = cameraAxisX;
+	//Y軸はワールド座標系のy軸
+	ybillCameraAxisY = XMVector3Normalize(upVector);
+	//Z軸はX->Yの外積で決まる
+	ybillCameraAxisZ= XMVector3Cross(ybillCameraAxisX, ybillCameraAxisY);
+	ybillCameraAxisZ = XMVector3Normalize(ybillCameraAxisZ);
+
+	matBillboardY.r[0] = ybillCameraAxisX;
+	matBillboardY.r[1] = ybillCameraAxisY;
+	matBillboardY.r[2] = ybillCameraAxisZ;
+	matBillboardY.r[3] = XMVectorSet(0, 0, 0, 1);
+
+
+#pragma endregion 
+
 }
 
 bool Object3d::Initialize() {
 	// nullptrチェック
 	assert(device);
-
 	// ヒーププロパティ
 	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	// リソース設定
@@ -678,11 +707,18 @@ void Object3d::Update() {
 	matRot *= XMMatrixRotationX(XMConvertToRadians(rotation.x));
 	matRot *= XMMatrixRotationY(XMConvertToRadians(rotation.y));
 	matTrans = XMMatrixTranslation(position.x, position.y, position.z);
-
 	// ワールド行列の合成
 	matWorld = XMMatrixIdentity(); // 変形をリセット
 	matWorld *= matScale; // ワールド行列にスケーリングを反映
 	matWorld *= matRot; // ワールド行列に回転を反映
+	
+	if (isBillboard) {
+	matWorld *= matBillboard; //ビルボード行列を掛ける
+
+	}
+	else if (isYBillboard) {
+		matWorld *= matBillboardY; //ビルボード行列を掛ける
+	}
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
 	// 親オブジェクトがあれば
