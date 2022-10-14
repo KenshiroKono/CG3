@@ -103,9 +103,11 @@ void GameScene::Update() {
 	for (size_t i = 0; i < 50; i++) {
 		if (input->PushKey(DIK_1)) {
 			kusa[i]->isBillboard = 1;
+			kusa[i]->isYBillboard = 0;
 		}
 		else if (input->PushKey(DIK_2)) {
 			kusa[i]->isYBillboard = 1;
+			kusa[i]->isBillboard = 0;
 		}
 		else {
 			kusa[i]->isBillboard = 0;
