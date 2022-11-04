@@ -21,15 +21,12 @@ private: // エイリアス
 
 public: // サブクラス
 	// 頂点データ構造体
-	struct VertexPosNormalUv {
-		XMFLOAT3 pos; // xyz座標
-		XMFLOAT3 normal; // 法線ベクトル
-		XMFLOAT2 uv;  // uv座標
+	struct Vertex {
+		XMFLOAT3 pos; // xyz座標	
 	};
 
 	// 定数バッファ用データ構造体
 	struct ConstBufferData {
-		XMFLOAT4 color;	// 色 (RGBA)
 		XMMATRIX mat;	// ３Ｄ変換行列
 	};
 
@@ -45,8 +42,8 @@ private: // 定数
 
 
 private: // 追加メンバ変数
-	static const int vertexCount = 4;
-	static const int indexCount = 3 * 2;
+	static const int vertexCount = 1;
+	//static const int indexCount = 3 * 2;
 	
 	//ビルボード行列
 	static XMMATRIX matBillboard;
@@ -135,7 +132,7 @@ private: // 静的メンバ変数
 	// 頂点バッファ
 	static ComPtr<ID3D12Resource> vertBuff;
 	// インデックスバッファ
-	static ComPtr<ID3D12Resource> indexBuff;
+	//static ComPtr<ID3D12Resource> indexBuff;
 	// テクスチャバッファ
 	static ComPtr<ID3D12Resource> texbuff;
 	// シェーダリソースビューのハンドル(CPU)
@@ -155,12 +152,12 @@ private: // 静的メンバ変数
 	// 頂点バッファビュー
 	static D3D12_VERTEX_BUFFER_VIEW vbView;
 	// インデックスバッファビュー
-	static D3D12_INDEX_BUFFER_VIEW ibView;
+	//static D3D12_INDEX_BUFFER_VIEW ibView;
 	// 頂点データ配列
-	static VertexPosNormalUv vertices[vertexCount];
+	static Vertex vertices[vertexCount];
 	// 頂点インデックス配列
 	//static unsigned short indices[planeCount * 3];
-	static unsigned short indices[indexCount];
+	//static unsigned short indices[indexCount];
 
 private:// 静的メンバ関数
 	/// <summary>

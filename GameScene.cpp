@@ -10,9 +10,9 @@ GameScene::GameScene() {
 GameScene::~GameScene() {
 	delete spriteBG;
 	delete object3d;
-	for (size_t i = 0; i < 50; i++) {
+	/*for (size_t i = 0; i < 50; i++) {
 		delete kusa[i];
-	}
+	}*/
 
 }
 
@@ -40,16 +40,16 @@ void GameScene::Initialize(DirectXCommon* dxCommon, Input* input) {
 
 	//確認 ex
 	
-	 //乱数シード設定
-	std::random_device speed_gen;
-	//メルセンヌ・ツイスター
-	std::mt19937_64 engine(speed_gen());
-	//乱数範囲(座標用)
-	std::uniform_real_distribution<float> posDist(-20.0f, 20.0f);
-	//乱数エンジンを渡し、指定範囲からランダムで数値を得る
-	float posValue = posDist(engine);
-	XMFLOAT3 ranPos;
-	
+	// //乱数シード設定
+	//std::random_device speed_gen;
+	////メルセンヌ・ツイスター
+	//std::mt19937_64 engine(speed_gen());
+	////乱数範囲(座標用)
+	//std::uniform_real_distribution<float> posDist(-20.0f, 20.0f);
+	////乱数エンジンを渡し、指定範囲からランダムで数値を得る
+	//float posValue = posDist(engine);
+	//XMFLOAT3 ranPos;
+	/*
 	for (int  i = 0; i < 50; i++) {
 		kusa[i] = nullptr;
 		kusa[i] = Object3d::Create();
@@ -58,7 +58,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon, Input* input) {
 		ranPos.z =  posDist(engine) ;
 		kusa[i]->SetPosition(ranPos);
 		kusa[i]-> Update();
-	}
+	}*/
 }
 
 void GameScene::Update() {
@@ -69,10 +69,10 @@ void GameScene::Update() {
 		
 
 		// 移動後の座標を計算
-		if (input->PushKey(DIK_UP)) { position.y += 1.0f; }
-		else if (input->PushKey(DIK_DOWN)) { position.y -= 1.0f; }
-		if (input->PushKey(DIK_RIGHT)) { position.x += 1.0f; }
-		else if (input->PushKey(DIK_LEFT)) { position.x -= 1.0f; }
+		if (input->PushKey(DIK_UP)) { position.y += 0.1f; }
+		else if (input->PushKey(DIK_DOWN)) { position.y -= 0.1f; }
+		if (input->PushKey(DIK_RIGHT)) { position.x += 0.1f; }
+		else if (input->PushKey(DIK_LEFT)) { position.x -= 0.1f; }
 
 		// 座標の変更を反映
 		object3d->SetPosition(position);
@@ -80,10 +80,10 @@ void GameScene::Update() {
 
 	// カメラ移動
 	if (input->PushKey(DIK_W) || input->PushKey(DIK_S) || input->PushKey(DIK_D) || input->PushKey(DIK_A)) {
-		if (input->PushKey(DIK_W)) { Object3d::CameraMoveEyeVector({ 0.0f,+1.0f,0.0f }); }
-		else if (input->PushKey(DIK_S)) { Object3d::CameraMoveEyeVector({ 0.0f,-1.0f,0.0f }); }
-		if (input->PushKey(DIK_D)) { Object3d::CameraMoveEyeVector({ +1.0f,0.0f,0.0f }); }
-		else if (input->PushKey(DIK_A)) { Object3d::CameraMoveEyeVector({ -1.0f,0.0f,0.0f }); }
+		if (input->PushKey(DIK_W)) { Object3d::CameraMoveEyeVector({ 0.0f,+0.1f,0.0f }); }
+		else if (input->PushKey(DIK_S)) { Object3d::CameraMoveEyeVector({ 0.0f,-0.1f,0.0f }); }
+		if (input->PushKey(DIK_D)) { Object3d::CameraMoveEyeVector({ +0.1f,0.0f,0.0f }); }
+		else if (input->PushKey(DIK_A)) { Object3d::CameraMoveEyeVector({ -0.1f,0.0f,0.0f }); }
 	}
 
 	if (input->PushKey(DIK_1)) {
@@ -100,7 +100,7 @@ void GameScene::Update() {
 	}
 
 	object3d->Update();
-	for (size_t i = 0; i < 50; i++) {
+	/*for (size_t i = 0; i < 50; i++) {
 		if (input->PushKey(DIK_1)) {
 			kusa[i]->isBillboard = 1;
 			kusa[i]->isYBillboard = 0;
@@ -114,7 +114,7 @@ void GameScene::Update() {
 			kusa[i]->isYBillboard = 0;
 		}
 		kusa[i]->Update();
-	}
+	}*/
 }
 
 void GameScene::Draw() {
@@ -125,7 +125,7 @@ void GameScene::Draw() {
 	// 背景スプライト描画前処理
 	Sprite::PreDraw(cmdList);
 	// 背景スプライト描画
-	//spriteBG->Draw();
+	spriteBG->Draw();
 
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
@@ -142,11 +142,12 @@ void GameScene::Draw() {
 	Object3d::PreDraw(cmdList);
 
 	// 3Dオブクジェクトの描画
-	//object3d->Draw();
+	object3d->Draw();
 
-	for (size_t i = 0; i < 50; i++) {
-		kusa[i]->Draw();
-	}
+	//for (size_t i = 0; i < 50; i++) {
+	//	kusa[i]->Draw();
+	//}
+
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
