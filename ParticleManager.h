@@ -5,11 +5,12 @@
 #include <d3d12.h>
 #include <DirectXMath.h>
 #include <d3dx12.h>
+#include <forward_list>
 
 /// <summary>
 /// 3Dオブジェクト
 /// </summary>
-class Object3d {
+class ParticleManager {
 private: // エイリアス
 	// Microsoft::WRL::を省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -21,17 +22,39 @@ private: // エイリアス
 
 public: // サブクラス
 	// 頂点データ構造体
-	struct Vertex {
+	struct VertexPosScale {
 		XMFLOAT3 pos; // xyz座標	
+		float scale;
 	};
 
 	// 定数バッファ用データ構造体
 	struct ConstBufferData {
 		XMMATRIX mat;	// ３Ｄ変換行列
+		XMMATRIX matBillboard;	// ビルボ行列
+	};
+	struct Particle {
+		using XMFLOAT3 = DirectX::XMFLOAT3;
+
+		//座標
+		XMFLOAT3 position = {};
+		//速度
+		XMFLOAT3 velocity = {};
+		//加速度
+		XMFLOAT3 accel = {};
+		//現在フレーム
+		int flame = 0;
+		//終了フレーム
+		int num_frame = 0;
+		//スケール
+		float scale = 1.0f;
+		//初期値
+		float s_scale = 1.0f;
+		//最終地
+		float e_scale = 1.0f;
+
 	};
 
-	int isBillboard;
-	int isYBillboard;
+
 
 private: // 定数
 	static const int division = 50;					// 分割数
@@ -42,18 +65,19 @@ private: // 定数
 
 
 private: // 追加メンバ変数
-	static const int vertexCount = 1;
-	//static const int indexCount = 3 * 2;
-	
+	static const int vertexCount = 1024;
+
 	//ビルボード行列
 	static XMMATRIX matBillboard;
 	//Y軸回りビルボード行列
 	static XMMATRIX matBillboardY;
 
-	////頂点データ配列
-	//static VertexPosNormalUv vertices[vertexCount];
-	////頂点インデックス配列
-	//static unsigned short indices[indexCount];
+
+public:// 追加メンバ変数
+
+	int isBillboard;
+	int isYBillboard;
+	std::forward_list<Particle> particles;
 
 public: // 静的メンバ関数
 	/// <summary>
@@ -79,7 +103,7 @@ public: // 静的メンバ関数
 	/// 3Dオブジェクト生成
 	/// </summary>
 	/// <returns></returns>
-	static Object3d* Create();
+	static ParticleManager* Create();
 
 	/// <summary>
 	/// 視点座標の取得
@@ -154,7 +178,7 @@ private: // 静的メンバ変数
 	// インデックスバッファビュー
 	//static D3D12_INDEX_BUFFER_VIEW ibView;
 	// 頂点データ配列
-	static Vertex vertices[vertexCount];
+	static VertexPosScale vertices[vertexCount];
 	// 頂点インデックス配列
 	//static unsigned short indices[planeCount * 3];
 	//static unsigned short indices[indexCount];
@@ -206,31 +230,18 @@ public: // メンバ関数
 	void Draw();
 
 	/// <summary>
-	/// 座標の取得
+	/// パーティクルの追加
 	/// </summary>
-	/// <returns>座標</returns>
-	const XMFLOAT3& GetPosition() const { return position; }
+	/// <pram name="life">生存時間</pram>
+	/// <pram name="postion">初期座標</pram>
+	/// <pram name="velocity">速度</pram>
+	/// <pram name="accer">加速度</pram>
+	void Add(int life, XMFLOAT3 postion, XMFLOAT3 velocity, XMFLOAT3 accel, float s_scale, float e_scale);
 
-	/// <summary>
-	/// 座標の設定
-	/// </summary>
-	/// <param name="position">座標</param>
-	void SetPosition(const XMFLOAT3& position) { this->position = position; }
 
 private: // メンバ変数
 	ComPtr<ID3D12Resource> constBuff; // 定数バッファ
-	// 色
-	XMFLOAT4 color = { 1,1,1,1 };
 	// ローカルスケール
 	XMFLOAT3 scale = { 1,1,1 };
-	// X,Y,Z軸回りのローカル回転角
-	XMFLOAT3 rotation = { 0,0,0 };
-	// ローカル座標
-	XMFLOAT3 position = { 0,0,0 };
-	// ローカルワールド変換行列
-	XMMATRIX matWorld;
-	// 親オブジェクト
-	Object3d* parent = nullptr;
-
 };
 

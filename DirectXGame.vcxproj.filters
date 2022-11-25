@@ -45,7 +45,7 @@
     <ClCompile Include="DirectXCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Object3d.cpp">
+    <ClCompile Include="ParticleManager.cpp">
       <Filter>ソース&amp;ヘッダー\Object3d</Filter>
     </ClCompile>
     <ClCompile Include="DebugText.cpp">
@@ -62,10 +62,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Resources\shaders\BasicPixelShader.hlsl">
+    <FxCompile Include="Resources\shaders\ParticlePixelShader.hlsl">
       <Filter>シェーダー ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\shaders\BasicVertexShader.hlsl">
+    <FxCompile Include="Resources\shaders\ParticleVertexShader.hlsl">
       <Filter>シェーダー ファイル</Filter>
     </FxCompile>
     <FxCompile Include="Resources\shaders\SpritePixelShader.hlsl">
@@ -74,12 +74,12 @@
     <FxCompile Include="Resources\shaders\SpriteVertexShader.hlsl">
       <Filter>シェーダー ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\shaders\BasicGeometryShader.hlsl">
+    <FxCompile Include="Resources\shaders\ParticleGeometryShader.hlsl">
       <Filter>シェーダー ファイル</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\shaders\BasicShaderHeader.hlsli">
+    <None Include="Resources\shaders\ParticleShaderHeader.hlsli">
       <Filter>シェーダー ファイル</Filter>
     </None>
     <None Include="Resources\shaders\SpriteShaderHeader.hlsli">
@@ -93,7 +93,7 @@
     <ClInclude Include="DirectXCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Object3d.h">
+    <ClInclude Include="ParticleManager.h">
       <Filter>ソース&amp;ヘッダー\Object3d</Filter>
     </ClInclude>
     <ClInclude Include="DebugText.h">
